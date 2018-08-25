@@ -1,22 +1,24 @@
 const fs = require('fs');
+const { ConcatSource } = require('webpack-sources');
 
 
 // [^\S\r\n] matches whitespace which is not a line break.
+// Need to match both \r and \n newlines...
 /** Should match a userscript header block. */
-const userscriptHeaderRegex = /^\/\/[^\S\r\n]*==userscript==[^\S\r\n]*\n(\/\/[^\r\n]*\n)+\/\/[^\S\r\n]*==\/userscript==/i;
+const userscriptHeaderRegex = /^\/\/[^\S\r\n]*==userscript==[^\S\r\n]*\r?\n?(\/\/[^\r\n]*\r?\n?)+\/\/[^\S\r\n]*==\/userscript==/i;
 
 class UserscriptHeaderPlugin {
     constructor(options) {
-        if (!options.filename) {
-            throw new Error("Usesrcipt 'filename' not specified.");
+        if (!options.inputFile) {
+            throw new Error("Usesrcipt header 'inputFile' not specified.");
         }
-        this.filename = options.filename;
-        this.headers = {};
+        this.filename = options.inputFile;
+        this.header = '';
 
-        if (typeof this.filename === 'string') {
-            this.testFileName = (s) => s.indexOf(this.filename) !== -1;
-        } else {
-            this.testFileName = (s) => this.filename.test(s);
+        let content = fs.readFileSync(this.filename, {encoding: 'utf-8'});
+        let match = userscriptHeaderRegex.exec(content);
+        if (match) {
+            this.header = match[0];
         }
     }
 
@@ -24,22 +26,18 @@ class UserscriptHeaderPlugin {
         const filename = this.filename;
 
         compiler.hooks.compilation.tap("UserscriptHeaderPlugin", compilation => {
-            compilation.hooks.buildModule.tap("UserscriptHeaderPlugin", (module) => {
-                if (this.testFileName(module.resource)) {
-                    console.log("Matched file: "+ module.resource);
-                    let content = fs.readFileSync(module.resource, {encoding: 'utf-8'});
-                    console.log(content);
-                    console.log(userscriptHeaderRegex.exec(content));
-                }
-            });
-
             compilation.hooks.optimizeChunkAssets.tap("UserscriptHeaderPlugin", chunks => {
                 for (const chunk of chunks) {
                     if (!chunk.canBeInitial())
                         continue;
 
                     for (const filename of chunk.files) {
-                            console.log(compilation.assets[filename]);
+                        compilation.assets[filename] = new ConcatSource(
+                            this.header,
+                            '\n\n',
+                            compilation.assets[filename]
+                        );
+                        console.log(compilation.assets[filename]);
                     }
                 }
             })
