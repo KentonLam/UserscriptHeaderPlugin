@@ -20,7 +20,7 @@ module.exports = (env, argv) => {
             ]
         },
         plugins: [
-            new UHP({'filename': /test\.js$/})
+            new UHP({'inputFile': './test.js'})
         ]
         }
 };

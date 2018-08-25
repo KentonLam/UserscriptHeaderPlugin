@@ -1,3 +1,14 @@
+// ==UserScript==
+// @name        UQ Course Linker
+// @author      Kenton Lam
+// @description Makes course codes links.
+// @match       https://my.uq.edu.au/programs-courses/learn.uq.edu.au/*
+// @version     0.1.0
+// @grant       GM_getValue
+// @grant       GM_setValue
+// @grant       GM_deleteValue
+// ==/UserScript==
+
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -93,7 +104,7 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("\n\n//# sourceURL=webpack:///./test.js?");
+eval("// ==UserScript==\r\n// @name        UQ Course Linker\r\n// @author      Kenton Lam\r\n// @description Makes course codes links.\r\n// @match       https://my.uq.edu.au/programs-courses/learn.uq.edu.au/*\r\n// @version     0.1.0\r\n// @grant       GM_getValue\r\n// @grant       GM_setValue\r\n// @grant       GM_deleteValue\r\n// ==/UserScript==\r\n\n\n//# sourceURL=webpack:///./test.js?");
 
 /***/ })
 
