@@ -12,6 +12,11 @@ class UserscriptHeaderPlugin {
         if (!options.inputFile) {
             throw new Error("Usesrcipt header 'inputFile' not specified.");
         }
+        if (options.test) {
+            this.testRegex = options.test;
+        } else {
+            this.testRegex = /\.[tj]sx?$/;
+        }
         this.filename = options.inputFile;
         this.header = '';
 
@@ -24,6 +29,7 @@ class UserscriptHeaderPlugin {
 
     apply(compiler) {
         const filename = this.filename;
+        const testRegex = this.testRegex;
 
         compiler.hooks.compilation.tap("UserscriptHeaderPlugin", compilation => {
             compilation.hooks.optimizeChunkAssets.tap("UserscriptHeaderPlugin", chunks => {
@@ -32,12 +38,13 @@ class UserscriptHeaderPlugin {
                         continue;
 
                     for (const filename of chunk.files) {
-                        compilation.assets[filename] = new ConcatSource(
-                            this.header,
-                            '\n\n',
-                            compilation.assets[filename]
-                        );
-                        console.log(compilation.assets[filename]);
+                        if (testRegex.test(filename)) {
+                            compilation.assets[filename] = new ConcatSource(
+                                this.header,
+                                '\n\n',
+                                compilation.assets[filename]
+                            );
+                        }
                     }
                 }
             })
